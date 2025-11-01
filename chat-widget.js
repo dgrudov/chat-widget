@@ -50,13 +50,17 @@
 
   function applyResponsiveStyles() {
     if (isMobile()) {
-      Object.assign(iframe.style, {
-        width: "100vw",
-        height: "100vh",
-        bottom: "0",
-        right: "0",
-        borderRadius: "0"
-      });
+  Object.assign(iframe.style, {
+    width: "100vw",
+    height: "100dvh",
+    bottom: "0",
+    right: "0",
+    left: "0",
+    top: "0",
+    borderRadius: "0",
+    pointerEvents: isOpen ? "auto" : "none",
+    touchAction: "auto"
+  });
     } else {
       Object.assign(iframe.style, {
         width: "400px",
@@ -110,5 +114,6 @@
     applyResponsiveStyles();
   });
 })();
+
 
 
