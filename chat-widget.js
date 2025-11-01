@@ -3,7 +3,7 @@
   const BUTTON_SIZE = 64;
   const BUTTON_BOTTOM = 24;
   const BUTTON_RIGHT = 24;
-  const MOBILE_MAX_WIDTH = 600;
+  const MOBILE_MAX = 600;
 
   const btn = document.createElement("button");
   btn.setAttribute("aria-label", "Open chat");
@@ -27,20 +27,11 @@
   });
   btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="32" height="32"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>';
 
-  btn.addEventListener("mouseenter", () => (btn.style.transform = "scale(1.08)"));
-  btn.addEventListener("mouseleave", () => (btn.style.transform = "scale(1)"));
-
   const iframe = document.createElement("iframe");
   iframe.setAttribute("allow", "microphone; camera; clipboard-write;");
   Object.assign(iframe.style, {
     position: "fixed",
-    bottom: (BUTTON_BOTTOM + BUTTON_SIZE + 12) + "px",
-    right: BUTTON_RIGHT + "px",
-    width: "400px",
-    height: "600px",
     border: "none",
-    borderRadius: "16px",
-    boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
     zIndex: 9999,
     opacity: 0,
     pointerEvents: "none",
@@ -53,16 +44,18 @@
   let isOpen = false;
   let loaded = false;
 
+  function isMobile() {
+    return window.innerWidth <= MOBILE_MAX;
+  }
+
   function applyResponsiveStyles() {
-    const isMobile = window.matchMedia(`(max-width: ${MOBILE_MAX_WIDTH}px)`).matches;
-    if (isMobile) {
+    if (isMobile()) {
       Object.assign(iframe.style, {
         width: "100vw",
         height: "100vh",
-        bottom: "0px",
-        right: "0px",
-        borderRadius: "0px",
-        transform: isOpen ? "translateY(0) scale(1)" : "translateY(10px) scale(0.95)"
+        bottom: "0",
+        right: "0",
+        borderRadius: "0"
       });
     } else {
       Object.assign(iframe.style, {
@@ -74,8 +67,6 @@
       });
     }
   }
-
-  window.addEventListener("resize", applyResponsiveStyles);
 
   function openFrame() {
     if (!loaded) {
@@ -98,20 +89,22 @@
     isOpen = false;
   }
 
-  btn.addEventListener("click", function () {
-    if (!isOpen) openFrame();
-    else closeFrame();
-  });
-
+  btn.addEventListener("click", () => (isOpen ? closeFrame() : openFrame()));
+  btn.addEventListener("mouseenter", () => (btn.style.transform = "scale(1.08)"));
+  btn.addEventListener("mouseleave", () => (btn.style.transform = "scale(1)"));
   btn.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      if (!isOpen) openFrame();
-      else closeFrame();
+      isOpen ? closeFrame() : openFrame();
     }
   });
 
-  document.addEventListener("DOMContentLoaded", function () {
+  window.addEventListener("resize", () => {
+    applyResponsiveStyles();
+    if (isOpen) iframe.style.transform = "translateY(0) scale(1)";
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(btn);
     document.body.appendChild(iframe);
     applyResponsiveStyles();
