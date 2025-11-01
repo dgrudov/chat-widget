@@ -54,29 +54,36 @@
     return window.innerWidth <= MOBILE_MAX;
   }
 
-  function applyResponsiveStyles() {
-    if (isMobile()) {
-      Object.assign(iframe.style, {
-        width: "100vw",
-        height: "100dvh",
-        top: "0",
-        left: "0",
-        right: "0",
-        bottom: "0",
-        borderRadius: "0"
-      });
-    } else {
-      Object.assign(iframe.style, {
-        width: "400px",
-        height: "600px",
-        bottom: (BUTTON_BOTTOM + BUTTON_SIZE + 12) + "px",
-        right: BUTTON_RIGHT + "px",
-        top: "auto",
-        left: "auto",
-        borderRadius: "16px"
-      });
-    }
+function applyResponsiveStyles() {
+  if (isMobile()) {
+    Object.assign(iframe.style, {
+      width: "100vw",
+      height: "100vh",
+      top: "0",
+      left: "0",
+      right: "0",
+      bottom: "0",
+      borderRadius: "0",
+      position: "fixed",
+      zIndex: 10001,
+      pointerEvents: "auto",
+      transform: "translateY(0) scale(1)"
+    });
+  } else {
+    Object.assign(iframe.style, {
+      width: "400px",
+      height: "600px",
+      bottom: (BUTTON_BOTTOM + BUTTON_SIZE + 12) + "px",
+      right: BUTTON_RIGHT + "px",
+      top: "auto",
+      left: "auto",
+      borderRadius: "16px",
+      position: "fixed",
+      zIndex: 9999
+    });
   }
+}
+
 
   function openFrame() {
     if (!loaded) {
@@ -136,3 +143,4 @@
     applyResponsiveStyles();
   });
 })();
+
