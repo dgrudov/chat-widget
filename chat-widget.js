@@ -5,6 +5,32 @@
   const BUTTON_RIGHT = 24;
   const MOBILE_MAX = 600;
 
+  const iframe = document.createElement("iframe");
+  iframe.src = IFRAME_SRC;
+  iframe.allow = "microphone; camera; clipboard-write; autoplay; fullscreen;";
+  iframe.setAttribute("title", "Support chat");
+  iframe.style.position = "fixed";
+  iframe.style.top = "0";
+  iframe.style.left = "0";
+  iframe.style.width = "400px";
+  iframe.style.height = "600px";
+  iframe.style.border = "none";
+  iframe.style.borderRadius = "16px";
+  iframe.style.zIndex = "10001";
+  iframe.style.background = "white";
+  document.body.appendChild(iframe);
+
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100vw";
+  overlay.style.height = "100vh";
+  overlay.style.background = "transparent";
+  overlay.style.zIndex = "10002";
+  overlay.style.display = "none";
+  document.body.appendChild(overlay);
+
   const btn = document.createElement("button");
   btn.setAttribute("aria-label", "Open chat");
   Object.assign(btn.style, {
@@ -18,7 +44,7 @@
     color: "#fff",
     border: "none",
     cursor: "pointer",
-    zIndex: 10000,
+    zIndex: "10003",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -26,25 +52,7 @@
     transition: "transform .25s, box-shadow .25s"
   });
   btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="32" height="32"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>';
-
-  const iframe = document.createElement("iframe");
-  iframe.src = IFRAME_SRC; // load immediately
-  iframe.setAttribute("allow", "microphone; camera; clipboard-write; autoplay; fullscreen;");
-  iframe.setAttribute("title", "Support chat");
-  iframe.tabIndex = 0;
-  Object.assign(iframe.style, {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    width: "400px",
-    height: "600px",
-    borderRadius: "16px",
-    border: "none",
-    opacity: 0,
-    visibility: "hidden",
-    zIndex: 10001,
-    background: "white"
-  });
+  document.body.appendChild(btn);
 
   let isOpen = false;
 
@@ -54,62 +62,46 @@
 
   function applyResponsiveStyles() {
     if (isMobile() && isOpen) {
-      Object.assign(iframe.style, {
-        width: "100vw",
-        height: "100vh",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        borderRadius: "0"
-      });
-      btn.style.display = "none";
-    } else if (!isMobile()) {
-      Object.assign(iframe.style, {
-        width: "400px",
-        height: "600px",
-        bottom: (BUTTON_BOTTOM + BUTTON_SIZE + 12) + "px",
-        right: BUTTON_RIGHT + "px",
-        top: "auto",
-        left: "auto",
-        borderRadius: "16px"
-      });
-      btn.style.display = isOpen ? "flex" : "flex";
+      iframe.style.width = "100vw";
+      iframe.style.height = "100vh";
+      iframe.style.top = "0";
+      iframe.style.left = "0";
+      iframe.style.right = "0";
+      iframe.style.bottom = "0";
+      iframe.style.borderRadius = "0";
+    } else {
+      iframe.style.width = "400px";
+      iframe.style.height = "600px";
+      iframe.style.bottom = BUTTON_BOTTOM + BUTTON_SIZE + 12 + "px";
+      iframe.style.right = BUTTON_RIGHT + "px";
+      iframe.style.top = "auto";
+      iframe.style.left = "auto";
+      iframe.style.borderRadius = "16px";
     }
   }
 
   function openFrame() {
-    iframe.style.opacity = 1;
-    iframe.style.visibility = "visible";
-    isOpen = true;
+    overlay.style.display = isMobile() ? "block" : "none";
     applyResponsiveStyles();
-    try { iframe.focus(); } catch (e) {}
-    btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="28" height="28"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+    isOpen = true;
   }
 
   function closeFrame() {
-    iframe.style.opacity = 0;
-    iframe.style.visibility = "hidden";
+    overlay.style.display = "none";
     isOpen = false;
-    btn.style.display = "flex";
-    btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="32" height="32"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>';
+    applyResponsiveStyles();
   }
 
-  btn.addEventListener("click", () => (isOpen ? closeFrame() : openFrame()));
-  btn.addEventListener("mouseenter", () => (btn.style.transform = "scale(1.08)"));
-  btn.addEventListener("mouseleave", () => (btn.style.transform = "scale(1)"));
-  btn.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      isOpen ? closeFrame() : openFrame();
-    }
+  btn.addEventListener("click", () => {
+    if (!isOpen) openFrame();
+    else closeFrame();
   });
+
+  overlay.addEventListener("click", closeFrame);
 
   window.addEventListener("resize", applyResponsiveStyles);
 
   document.addEventListener("DOMContentLoaded", () => {
-    document.body.appendChild(btn);
-    document.body.appendChild(iframe);
     applyResponsiveStyles();
   });
 })();
